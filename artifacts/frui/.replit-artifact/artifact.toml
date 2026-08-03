@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Frui"
+description = "Frui — Hybrid Athlete Training Platform. A mobile-first web app that helps hybrid athletes manage training plans across multiple modalities (Strength, Cardio, Mobility). Phase 1 includes plan creation, daily workout tracking, and account management."
+version = "1.0.0"
+id = "artifacts/frui"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18805
+
+[services.development]
+run = "pnpm --filter @workspace/frui run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/frui", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/frui/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18805"
+BASE_PATH = "/"

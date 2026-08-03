@@ -3,20 +3,28 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Frui — Hybrid Athlete Training Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: categories
+    description: Training categories
+  - name: plans
+    description: Workout plans
+  - name: workouts
+    description: Daily workouts
+  - name: profile
+    description: User profile
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +32,212 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all training categories grouped by parent modality
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /plans:
+    get:
+      operationId: listPlans
+      tags: [plans]
+      summary: List the current user's workout plans
+      responses:
+        "200":
+          description: List of workout plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkoutPlan"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      operationId: createPlan
+      tags: [plans]
+      summary: Create a new workout plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkoutPlanInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutPlan"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plans/{id}:
+    get:
+      operationId: getPlan
+      tags: [plans]
+      summary: Get a single workout plan with its daily workouts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Workout plan with daily workouts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutPlanDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deletePlan
+      tags: [plans]
+      summary: Delete a workout plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /workouts/today:
+    get:
+      operationId: getTodayWorkouts
+      tags: [workouts]
+      summary: Get today's daily workouts across all active plans
+      responses:
+        "200":
+          description: Today's workouts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailyWorkout"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /workouts/{id}/complete:
+    patch:
+      operationId: completeWorkout
+      tags: [workouts]
+      summary: Toggle a daily workout as complete or incomplete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkoutCompleteInput"
+      responses:
+        "200":
+          description: Updated workout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyWorkout"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /profile:
+    get:
+      operationId: getProfile
+      tags: [profile]
+      summary: Get the current user's profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      operationId: updateProfile
+      tags: [profile]
+      summary: Update the current user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserProfileInput"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +248,185 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        parentModality:
+          type: string
+        subCategory:
+          type: string
+      required:
+        - id
+        - parentModality
+        - subCategory
+
+    WorkoutPlan:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        mesocycleDurationWeeks:
+          type: number
+        status:
+          type: string
+        prescribedCategoryIds:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - mesocycleDurationWeeks
+        - status
+        - prescribedCategoryIds
+        - createdAt
+
+    WorkoutPlanDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        mesocycleDurationWeeks:
+          type: number
+        status:
+          type: string
+        prescribedCategoryIds:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+        workouts:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyWorkout"
+      required:
+        - id
+        - userId
+        - mesocycleDurationWeeks
+        - status
+        - prescribedCategoryIds
+        - createdAt
+        - workouts
+
+    WorkoutPlanInput:
+      type: object
+      properties:
+        mesocycleDurationWeeks:
+          type: number
+          minimum: 1
+          maximum: 16
+        prescribedCategoryIds:
+          type: array
+          items:
+            type: string
+          minItems: 1
+      required:
+        - mesocycleDurationWeeks
+        - prescribedCategoryIds
+
+    DailyWorkout:
+      type: object
+      properties:
+        id:
+          type: string
+        planId:
+          type: string
+        dayOfWeek:
+          type: number
+          minimum: 0
+          maximum: 6
+        weekNumber:
+          type: number
+        scheduledDate:
+          type: string
+        targetDurationMinutes:
+          type: number
+        prescribedCategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+        completed:
+          type: boolean
+        planStatus:
+          type: string
+      required:
+        - id
+        - planId
+        - dayOfWeek
+        - weekNumber
+        - scheduledDate
+        - targetDurationMinutes
+        - prescribedCategories
+        - completed
+        - planStatus
+
+    WorkoutCompleteInput:
+      type: object
+      properties:
+        completed:
+          type: boolean
+      required:
+        - completed
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        clerkUserId:
+          type: string
+        preferredModalities:
+          type: array
+          items:
+            type: string
+        dislikedModalities:
+          type: array
+          items:
+            type: string
+        availableResources:
+          type: array
+          items:
+            type: string
+        athleteStatus:
+          type: ["string", "null"]
+      required:
+        - id
+        - clerkUserId
+        - preferredModalities
+        - dislikedModalities
+        - availableResources
+
+    UserProfileInput:
+      type: object
+      properties:
+        preferredModalities:
+          type: array
+          items:
+            type: string
+        dislikedModalities:
+          type: array
+          items:
+            type: string
+        availableResources:
+          type: array
+          items:
+            type: string
+        athleteStatus:
+          type: string
