@@ -1,0 +1,2 @@
+- [Supabase connection](supabase-connection.md) — direct host (db.xxx.supabase.co) is unreachable from Replit; must use pooler URL
+- [Zod v3 schema types](zod-schema-types.md) — drizzle-zod generates v4 types; use Drizzle's $inferInsert/$inferSelect instead
