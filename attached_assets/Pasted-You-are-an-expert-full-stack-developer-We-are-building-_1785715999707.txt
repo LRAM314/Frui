@@ -1,0 +1,44 @@
+You are an expert full-stack developer. We are building a mobile-first web application called the "Hybrid Athlete Training Platform."
+
+<Context & Mission>
+The goal of this app is to build the ultimate hybrid athlete training platform that adapts to the realities of everyday life. The fitness market is saturated with rigid templates that force users to conform to a specific discipline (like just bodybuilding or just marathon prep).
+
+Our unique differentiators are:
+
+The Enjoyment Algorithm: Instead of forcing a user to run, the app swaps modalities based on what they like (e.g., swapping a 5-mile run for equivalent pool swimming) to prevent burnout.
+
+Facility Mapping: The app builds plans based on the hyper-local resources available at that exact moment (e.g., Community pool, high school track, or living room).
+
+Day-to-Day Adaptability: It absorbs the chaos of a busy schedule by instantly recalculating a workout if the user suddenly has less time or high mental fatigue.
+</Context & Mission>
+
+<Immediate 1 Action Items Phase>
+Do not build the AI features yet. Focus strictly on Phase 1:
+
+Initialize the project with the Tech Stack mentioned above.
+
+Create the Database Schema mapped for Supabase with the following models:
+
+Users: id, schedule_matrix, preferred_modalities, disliked_modalities, available_resources, athlete_status.
+
+Categories: id, parent_modality (e.g., Strength, Cardio, Mobility), sub_category (e.g., Weightlifting, Calisthenics, Swimming, Sprinting).
+
+WorkoutPlans: id, user_id, mesocycle_duration_weeks, status.
+
+DailyWorkouts: id, plan_id, day_of_week, target_duration_minutes, prescribed_categories (JSON), completed (boolean).
+
+Create a seed script to populate the Categories table with broad parent modalities and their sub-categories, rather than specific exercises.
+
+Build the initial UI shell using the specific earth-tone palette:
+
+General: Set the main app background to Charcoal.
+
+Top Left: Hamburger menu icon (3 bars) styled in Camel or Ochre. Clicking it opens a sidebar containing "Settings" and "Help".
+
+Top Middle: Text placeholder for the App Name in a light, legible contrast color.
+
+Top Right: Profile/Account icon. Clicking it opens a small popup preview, which then navigates to a dedicated Account page.
+
+Middle (Main Screen): A prominent "Create a plan" button centered on the Charcoal background, styled in solid Terracotta to stand out.
+
+Bottom: A fixed navigation bar (using Clay or a slightly lighter Charcoal) with two options: "My plan" and "To do". Use Camel or Rust to highlight the active tab.
