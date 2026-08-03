@@ -8,8 +8,8 @@
     "./schema": "./src/schema/index.ts"
   },
   "scripts": {
-    "push": "drizzle-kit push --config ./drizzle.config.ts",
-    "push-force": "drizzle-kit push --force --config ./drizzle.config.ts"
+    "push": "node ./scripts/push.mjs",
+    "push-force": "DRIZZLE_FORCE=1 node ./scripts/push.mjs"
   },
   "dependencies": {
     "drizzle-orm": "catalog:",
