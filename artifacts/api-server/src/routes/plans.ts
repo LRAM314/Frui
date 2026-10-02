@@ -12,29 +12,13 @@ import { requireAuth } from "../middlewares/requireAuth";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { addDays, format, getDay, startOfDay } from "date-fns";
+import { ensureProfile } from "../lib/intake-service";
 
 const router = Router();
 
 // Ensure user row exists (JIT provisioning)
 async function ensureUser(clerkUserId: string) {
-  const [existing] = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.clerkUserId, clerkUserId))
-    .limit(1);
-  if (existing) return existing;
-
-  const [created] = await db
-    .insert(usersTable)
-    .values({
-      id: clerkUserId,
-      clerkUserId,
-      preferredModalities: [],
-      dislikedModalities: [],
-      availableResources: [],
-    })
-    .returning();
-  return created;
+  return ensureProfile(clerkUserId);
 }
 
 // GET /api/plans
@@ -80,8 +64,11 @@ router.post("/", requireAuth, async (req, res) => {
   const { mesocycleDurationWeeks, prescribedCategoryIds } = parsed.data;
 
   try {
-    await ensureUser(userId);
-
+    const user = await ensureUser(userId);
+    if (!user.onboardingCompletedAt) {
+      res.status(403).json({ error: "Finish onboarding before creating a new plan." });
+      return;
+    }
     const planId = randomUUID();
     const [plan] = await db
       .insert(workoutPlansTable)

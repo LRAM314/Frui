@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
 @layer theme, base, clerk, components, utilities;
 @import 'tailwindcss';
 @import '@clerk/themes/shadcn.css';
@@ -59,14 +60,16 @@
   --color-sidebar-accent-border: var(--sidebar-accent-border);
   --color-sidebar-ring: hsl(var(--sidebar-ring));
   
-  --color-charcoal: #2D2D2D;
-  --color-terracotta: #C4622D;
-  --color-camel: #C89B7B;
-  --color-ochre: #C4A35A;
-  --color-rust: #9B4C2B;
-  --color-clay: #8B6344;
-  --color-light-text: #F5F0E8;
-  --color-muted-text: #A89B8C;
+  --color-charcoal: #2B2B2B;
+  --color-slate-blue: #5A7D9A;
+  --color-slate-deep: #3F5C77;
+  --color-terracotta: #3F5C77;
+  --color-camel: #A9C3D8;
+  --color-ochre: #C8A58C;
+  --color-rust: #2F465A;
+  --color-clay: #9C7A63;
+  --color-light-text: #F1EFEA;
+  --color-muted-text: #B8BEC4;
 
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
@@ -86,60 +89,60 @@
   --elevate-2: rgba(255, 255, 255, 0.09);
 
   /* Charcoal */
-  --background: 0 0% 18%; 
+  --background: 0 0% 17%; 
   /* Light text */
-  --foreground: 34 31% 94%; 
+  --foreground: 43 20% 93%; 
 
   /* Lighter Charcoal for borders/inputs */
   --border: 0 0% 23%; 
   --input: 0 0% 15%; 
-  --ring: 21 64% 47%; 
+  --ring: 208 38% 75%; 
 
   /* Lighter Charcoal for cards/popovers */
   --card: 0 0% 23%; 
-  --card-foreground: 34 31% 94%; 
+  --card-foreground: 43 20% 93%; 
   --card-border: 0 0% 27%; 
 
   --popover: 0 0% 23%; 
-  --popover-foreground: 34 31% 94%; 
+  --popover-foreground: 43 20% 93%; 
   --popover-border: 0 0% 27%; 
 
   /* Terracotta */
-  --primary: 21 64% 47%; 
-  --primary-foreground: 34 31% 94%; 
+  --primary: 209 31% 36%; 
+  --primary-foreground: 43 20% 93%; 
 
   /* Camel */
-  --secondary: 25 43% 63%; 
-  --secondary-foreground: 0 0% 18%; 
+  --secondary: 208 38% 75%; 
+  --secondary-foreground: 0 0% 17%; 
 
   /* Lighter Charcoal with Ochre touch */
   --muted: 0 0% 23%; 
-  --muted-foreground: 32 13% 60%; 
+  --muted-foreground: 210 6% 74%; 
 
   /* Rust */
-  --accent: 18 57% 39%; 
-  --accent-foreground: 34 31% 94%; 
+  --accent: 209 33% 26%; 
+  --accent-foreground: 43 20% 93%; 
 
   --destructive: 0 84% 60%; 
   --destructive-foreground: 0 0% 98%; 
 
-  --chart-1: 21 64% 47%; 
-  --chart-2: 25 43% 63%; 
-  --chart-3: 41 46% 56%; 
-  --chart-4: 18 57% 39%; 
-  --chart-5: 26 34% 41%; 
+  --chart-1: 209 31% 36%; 
+  --chart-2: 208 38% 75%; 
+  --chart-3: 24 21% 50%; 
+  --chart-4: 209 33% 26%; 
+  --chart-5: 24 21% 40%; 
 
   --sidebar: 0 0% 23%; 
-  --sidebar-foreground: 34 31% 94%; 
+  --sidebar-foreground: 43 20% 93%; 
   --sidebar-border: 0 0% 27%; 
-  --sidebar-primary: 21 64% 47%; 
-  --sidebar-primary-foreground: 34 31% 94%; 
-  --sidebar-accent: 25 43% 63%; 
-  --sidebar-accent-foreground: 0 0% 18%; 
-  --sidebar-ring: 21 64% 47%; 
+  --sidebar-primary: 209 31% 36%; 
+  --sidebar-primary-foreground: 43 20% 93%; 
+  --sidebar-accent: 208 38% 75%; 
+  --sidebar-accent-foreground: 0 0% 17%; 
+  --sidebar-ring: 208 38% 75%; 
 
-  --app-font-sans: 'Inter', sans-serif;
-  --app-font-serif: Georgia, serif;
+  --app-font-sans: 'Figtree', system-ui, sans-serif;
+  --app-font-serif: 'Fraunces', Georgia, serif;
   --app-font-mono: Menlo, monospace;
   --radius: 0.5rem;
   
@@ -188,43 +191,46 @@
   --elevate-1: rgba(255, 255, 255, 0.04);
   --elevate-2: rgba(255, 255, 255, 0.09);
 
-  --background: 0 0% 18%; 
-  --foreground: 34 31% 94%; 
+  --background: 0 0% 17%; 
+  --foreground: 43 20% 93%; 
   --border: 0 0% 23%; 
   --input: 0 0% 15%; 
-  --ring: 21 64% 47%; 
+  --ring: 208 38% 75%; 
   --card: 0 0% 23%; 
-  --card-foreground: 34 31% 94%; 
+  --card-foreground: 43 20% 93%; 
   --card-border: 0 0% 27%; 
   --popover: 0 0% 23%; 
-  --popover-foreground: 34 31% 94%; 
+  --popover-foreground: 43 20% 93%; 
   --popover-border: 0 0% 27%; 
-  --primary: 21 64% 47%; 
-  --primary-foreground: 34 31% 94%; 
-  --secondary: 25 43% 63%; 
-  --secondary-foreground: 0 0% 18%; 
+  --primary: 209 31% 36%; 
+  --primary-foreground: 43 20% 93%; 
+  --secondary: 208 38% 75%; 
+  --secondary-foreground: 0 0% 17%; 
   --muted: 0 0% 23%; 
-  --muted-foreground: 32 13% 60%; 
-  --accent: 18 57% 39%; 
-  --accent-foreground: 34 31% 94%; 
+  --muted-foreground: 210 6% 74%; 
+  --accent: 209 33% 26%; 
+  --accent-foreground: 43 20% 93%; 
   --destructive: 0 84% 60%; 
   --destructive-foreground: 0 0% 98%; 
-  --chart-1: 21 64% 47%; 
-  --chart-2: 25 43% 63%; 
-  --chart-3: 41 46% 56%; 
-  --chart-4: 18 57% 39%; 
-  --chart-5: 26 34% 41%; 
+  --chart-1: 209 31% 36%; 
+  --chart-2: 208 38% 75%; 
+  --chart-3: 24 21% 50%; 
+  --chart-4: 209 33% 26%; 
+  --chart-5: 24 21% 40%; 
   --sidebar: 0 0% 23%; 
-  --sidebar-foreground: 34 31% 94%; 
+  --sidebar-foreground: 43 20% 93%; 
   --sidebar-border: 0 0% 27%; 
-  --sidebar-primary: 21 64% 47%; 
-  --sidebar-primary-foreground: 34 31% 94%; 
-  --sidebar-accent: 25 43% 63%; 
-  --sidebar-accent-foreground: 0 0% 18%; 
-  --sidebar-ring: 21 64% 47%; 
+  --sidebar-primary: 209 31% 36%; 
+  --sidebar-primary-foreground: 43 20% 93%; 
+  --sidebar-accent: 208 38% 75%; 
+  --sidebar-accent-foreground: 0 0% 17%; 
+  --sidebar-ring: 208 38% 75%; 
 }
 
 @layer base {
+  :focus-visible { outline: 3px solid #A9C3D8; outline-offset: 2px; }
+  button, [role='button'], a { -webkit-tap-highlight-color: transparent; }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   * {
     @apply border-border;
   }

@@ -4,7 +4,7 @@ import { Settings as SettingsIcon } from 'lucide-react';
 export default function Settings() {
   return (
     <div className="flex h-full flex-col items-center justify-center p-6 text-center gap-6">
-      <div className="rounded-full bg-[#3A3A3A] p-6 shadow-inner">
+      <div className="rounded-full bg-[#363636] p-6 shadow-inner">
         <SettingsIcon className="h-12 w-12 text-muted-text opacity-50" />
       </div>
       <div className="flex flex-col gap-2">

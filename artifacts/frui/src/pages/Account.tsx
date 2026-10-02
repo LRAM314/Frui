@@ -1,209 +1,98 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'wouter';
 import { useUser } from '@clerk/react';
-import { useGetProfile, useUpdateProfile, useListCategories, getGetProfileQueryKey } from '@workspace/api-client-react';
+import { useGetProfile, useUpdateProfile, getGetProfileQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
+import type { IntakeData } from '@workspace/api-zod';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Check, User as UserIcon } from 'lucide-react';
+import { Pencil, ClipboardList } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useOnboarding } from '@/components/onboarding/OnboardingProvider';
+import { Notice } from '@/components/onboarding/fields';
+import { summaries } from '@/lib/intake-ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function Account() {
-  const { user, isLoaded: isUserLoaded } = useUser();
-  const { data: profile, isLoading: isProfileLoading } = useGetProfile();
-  const { data: categories } = useListCategories();
+  const { user } = useUser();
+  const { data: profile, isLoading, isError, refetch } = useGetProfile();
+  const ob = useOnboarding();
   const updateProfile = useUpdateProfile();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [status, setStatus] = useState('beginner');
 
-  const [athleteStatus, setAthleteStatus] = useState<string>('');
-  const [preferredIds, setPreferredIds] = useState<string[]>([]);
-  const [dislikedIds, setDislikedIds] = useState<string[]>([]);
+  useEffect(() => { if (profile?.athleteStatus) setStatus(profile.athleteStatus); }, [profile?.athleteStatus]);
 
-  useEffect(() => {
-    if (profile) {
-      setAthleteStatus(profile.athleteStatus || 'beginner');
-      setPreferredIds(profile.preferredModalities || []);
-      setDislikedIds(profile.dislikedModalities || []);
-    }
-  }, [profile]);
-
-  const handleTogglePref = (id: string) => {
-    setPreferredIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
-    // Remove from disliked if adding to preferred
-    if (!preferredIds.includes(id)) {
-      setDislikedIds(prev => prev.filter(c => c !== id));
-    }
+  const saveStatus = (v: string) => {
+    const prev = status; setStatus(v);
+    updateProfile.mutate({ data: { athleteStatus: v } }, {
+      onSuccess: (p) => { queryClient.setQueryData(getGetProfileQueryKey(), p); toast({ title: 'Experience level saved' }); },
+      onError: () => { setStatus(prev); toast({ title: 'Could not save', description: 'Please try again.', variant: 'destructive' }); },
+    });
   };
 
-  const handleToggleDislike = (id: string) => {
-    setDislikedIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
-    // Remove from preferred if adding to disliked
-    if (!dislikedIds.includes(id)) {
-      setPreferredIds(prev => prev.filter(c => c !== id));
-    }
-  };
-
-  const handleSave = () => {
-    updateProfile.mutate(
-      {
-        data: {
-          athleteStatus,
-          preferredModalities: preferredIds,
-          dislikedModalities: dislikedIds,
-        }
-      },
-      {
-        onSuccess: (updatedProfile) => {
-          queryClient.setQueryData(getGetProfileQueryKey(), updatedProfile);
-          toast({ title: "Profile updated" });
-        },
-        onError: () => {
-          toast({ title: "Failed to update profile", variant: "destructive" });
-        }
-      }
-    );
-  };
-
-  if (!isUserLoaded || isProfileLoading) {
-    return (
-      <div className="flex flex-col gap-6 p-6">
-        <Skeleton className="h-24 w-24 rounded-full mx-auto bg-[#3A3A3A]" />
-        <Skeleton className="h-8 w-1/2 mx-auto bg-[#3A3A3A]" />
-        <div className="space-y-4 mt-8">
-          <Skeleton className="h-12 w-full rounded-xl bg-[#3A3A3A]" />
-          <Skeleton className="h-32 w-full rounded-xl bg-[#3A3A3A]" />
-          <Skeleton className="h-32 w-full rounded-xl bg-[#3A3A3A]" />
-        </div>
-      </div>
-    );
-  }
-
-  const getInitials = (name?: string | null) => {
-    if (!name) return '?';
-    return name.substring(0, 2).toUpperCase();
-  };
-
-  const groupedCategories = categories?.reduce((acc, cat) => {
-    if (!acc[cat.parentModality]) {
-      acc[cat.parentModality] = [];
-    }
-    acc[cat.parentModality].push(cat);
-    return acc;
-  }, {} as Record<string, typeof categories>) || {};
+  const published = ob.intake?.data as IntakeData | null | undefined;
+  const completedAt = ob.intake?.completedAt;
+  const initials = (user?.firstName || user?.username || user?.primaryEmailAddress?.emailAddress || '?').slice(0, 2).toUpperCase();
 
   return (
-    <div className="flex flex-col min-h-full pb-20">
-      <div className="flex flex-col items-center gap-4 bg-[#3A3A3A] p-8 pb-10 rounded-b-[40px] shadow-lg">
-        <Avatar className="h-24 w-24 border-4 border-charcoal shadow-xl">
+    <div className="flex flex-col gap-8 p-6 pb-10">
+      <div className="flex items-center gap-4">
+        <Avatar className="h-16 w-16 border-2 border-[#4A4F54]">
           <AvatarImage src={user?.imageUrl} />
-          <AvatarFallback className="bg-charcoal text-camel text-2xl font-serif">
-            {getInitials(user?.firstName || user?.username || user?.emailAddresses[0]?.emailAddress)}
-          </AvatarFallback>
+          <AvatarFallback className="bg-[#363636] text-camel">{initials}</AvatarFallback>
         </Avatar>
-        <div className="text-center">
-          <h2 className="text-2xl font-serif font-bold text-light-text">
-            {user?.fullName || 'Athlete'}
-          </h2>
-          <p className="text-muted-text text-sm">
-            {user?.primaryEmailAddress?.emailAddress}
-          </p>
+        <div className="min-w-0">
+          <h2 className="truncate font-serif text-2xl font-bold text-light-text" data-testid="text-account-name">{user?.fullName || 'Athlete'}</h2>
+          <p className="truncate text-sm text-muted-text">{user?.primaryEmailAddress?.emailAddress}</p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-8 p-6 -mt-4">
-        
-        <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-muted-text">Athlete Status</h3>
-          <Select value={athleteStatus} onValueChange={setAthleteStatus}>
-            <SelectTrigger className="w-full bg-[#3A3A3A] border-[#4A4A4A] text-light-text h-14 rounded-xl px-4">
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent className="bg-[#3A3A3A] border-[#4A4A4A] text-light-text rounded-xl">
+      {isError ? (
+        <Notice tone="error">Could not load your profile. <button type="button" className="min-h-11 font-bold underline" onClick={() => void refetch()}>Retry</button></Notice>
+      ) : isLoading ? <Skeleton className="h-14 w-full rounded-xl bg-[#363636]" /> : (
+        <div className="flex flex-col gap-2">
+          <label htmlFor="select-status" className="text-sm font-bold uppercase tracking-wider text-camel">Experience level</label>
+          <Select value={status} onValueChange={saveStatus} disabled={updateProfile.isPending}>
+            <SelectTrigger id="select-status" className="h-12 rounded-xl border-[#4A4F54] bg-[#363636] text-light-text" data-testid="select-athlete-status"><SelectValue /></SelectTrigger>
+            <SelectContent className="rounded-xl border-[#4A4F54] bg-[#363636] text-light-text">
               <SelectItem value="beginner">Beginner (0-1 years)</SelectItem>
               <SelectItem value="intermediate">Intermediate (1-3 years)</SelectItem>
               <SelectItem value="advanced">Advanced (3+ years)</SelectItem>
             </SelectContent>
           </Select>
         </div>
+      )}
 
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-text">Preferred Modalities</h3>
-            <p className="text-xs text-muted-text/70">What do you enjoy training?</p>
+      <section className="flex flex-col gap-4" aria-labelledby="intake-h">
+        <div className="flex items-center justify-between gap-2">
+          <h3 id="intake-h" className="text-sm font-bold uppercase tracking-wider text-camel">Training profile</h3>
+          <Link href="/onboarding" data-testid="link-edit-intake" className="flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-camel hover:bg-[#363636]"><Pencil className="h-4 w-4" /> Edit all</Link>
+        </div>
+        {ob.intakeError ? (
+          <Notice tone="error">Could not load your training profile. <button type="button" className="min-h-11 font-bold underline" onClick={ob.refetchIntake}>Retry</button></Notice>
+        ) : ob.intakeLoading ? <Skeleton className="h-40 w-full rounded-2xl bg-[#363636]" /> : !completedAt ? (
+          <div className="flex flex-col items-start gap-3 rounded-2xl border border-clay bg-[#363636] p-5" data-testid="card-intake-incomplete">
+            <ClipboardList className="h-6 w-6 text-camel" />
+            <p className="text-light-text">{ob.intake?.draft ? 'You have an unfinished draft.' : 'Your training profile is not complete yet.'} Plans need it.</p>
+            <Link href="/onboarding" className="flex min-h-12 items-center rounded-xl bg-slate-deep px-5 font-semibold text-white hover:bg-rust" data-testid="link-continue-onboarding">{ob.intake?.draft ? 'Resume onboarding' : 'Start onboarding'}</Link>
           </div>
+        ) : (
           <div className="flex flex-col gap-3">
-            {Object.entries(groupedCategories).map(([modality, cats]) => (
-              <div key={`pref-${modality}`} className="flex flex-wrap gap-2">
-                {cats.map((cat) => {
-                  const isSelected = preferredIds.includes(cat.id);
-                  return (
-                    <button
-                      key={`pref-${cat.id}`}
-                      onClick={() => handleTogglePref(cat.id)}
-                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-                        isSelected
-                          ? 'border-camel bg-camel/10 text-camel'
-                          : 'border-[#4A4A4A] bg-[#2D2D2D] text-muted-text'
-                      }`}
-                    >
-                      {isSelected && <Check className="h-3 w-3" />}
-                      {cat.subCategory}
-                    </button>
-                  );
-                })}
+            {summaries(published ?? {}).map((s) => (
+              <div key={s.step} className="rounded-2xl border border-[#4A4F54] bg-[#363636] p-4" data-testid={`account-section-${s.step}`}>
+                <div className="mb-2 flex items-center justify-between">
+                  <h4 className="font-serif text-lg font-bold text-light-text">{s.title}</h4>
+                  <Link href={`/onboarding?step=${s.step}`} data-testid={`link-edit-section-${s.step}`} className="flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-camel hover:bg-[#2B2B2B]"><Pencil className="h-4 w-4" /> Edit<span className="sr-only"> {s.title}</span></Link>
+                </div>
+                <ul className="flex flex-wrap gap-1.5">{s.lines.map((l, i) => <li key={i} className="rounded-full bg-[#2B2B2B] px-3 py-1 text-sm text-light-text">{l}</li>)}</ul>
               </div>
             ))}
+            <p className="text-xs text-muted-text">Completed {new Date(completedAt).toLocaleDateString()}. Stored privately on our server; edits use the same checks as onboarding.</p>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-text">Disliked Modalities</h3>
-            <p className="text-xs text-muted-text/70">What do you want to avoid?</p>
-          </div>
-          <div className="flex flex-col gap-3">
-            {Object.entries(groupedCategories).map(([modality, cats]) => (
-              <div key={`dis-${modality}`} className="flex flex-wrap gap-2">
-                {cats.map((cat) => {
-                  const isSelected = dislikedIds.includes(cat.id);
-                  return (
-                    <button
-                      key={`dis-${cat.id}`}
-                      onClick={() => handleToggleDislike(cat.id)}
-                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-                        isSelected
-                          ? 'border-rust bg-rust/10 text-rust'
-                          : 'border-[#4A4A4A] bg-[#2D2D2D] text-muted-text'
-                      }`}
-                    >
-                      {isSelected && <Check className="h-3 w-3" />}
-                      {cat.subCategory}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </div>
-      
-      <div className="fixed bottom-[80px] left-0 right-0 p-6 bg-gradient-to-t from-charcoal via-charcoal to-transparent md:absolute md:bottom-0">
-        <button
-          onClick={handleSave}
-          disabled={updateProfile.isPending}
-          className="flex h-14 w-full items-center justify-center rounded-xl bg-terracotta text-lg font-medium text-white transition-transform hover:bg-rust active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none shadow-lg"
-        >
-          {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
-        </button>
-      </div>
+        )}
+      </section>
     </div>
   );
 }

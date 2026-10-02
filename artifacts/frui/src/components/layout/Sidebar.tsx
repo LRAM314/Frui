@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
+import GuardedLink from '@/components/onboarding/GuardedLink';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, HelpCircle, X } from 'lucide-react';
 
@@ -33,14 +34,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="absolute inset-y-0 left-0 z-50 w-[280px] max-w-[80vw] bg-[#3A3A3A] shadow-2xl flex flex-col"
+            className="absolute inset-y-0 left-0 z-50 w-[280px] max-w-[80vw] bg-[#363636] shadow-2xl flex flex-col"
             data-testid="sidebar-container"
           >
-            <div className="flex h-16 items-center justify-between px-6 border-b border-[#2D2D2D]">
-              <span className="font-serif text-xl font-bold text-light-text">FRUI</span>
+            <div className="flex h-16 items-center justify-between px-6 border-b border-[#2B2B2B]">
+              <span className="font-serif text-xl font-bold text-light-text">Frui</span>
               <button 
                 onClick={onClose}
-                className="text-muted-text hover:text-light-text p-1 rounded-full hover:bg-[#2D2D2D] transition-colors"
+                aria-label="Close menu" className="flex h-11 w-11 items-center justify-center text-muted-text hover:text-light-text rounded-full hover:bg-[#2B2B2B] transition-colors"
                 data-testid="button-close-sidebar"
               >
                 <X className="h-6 w-6" />
@@ -52,7 +53,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 const Icon = link.icon;
                 const isActive = location === link.href;
                 return (
-                  <Link
+                  <GuardedLink
                     key={link.href}
                     href={link.href}
                     onClick={onClose}
@@ -64,7 +65,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   >
                     <Icon className="h-5 w-5" />
                     {link.label}
-                  </Link>
+                  </GuardedLink>
                 );
               })}
             </nav>

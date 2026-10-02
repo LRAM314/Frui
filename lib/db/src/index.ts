@@ -52,7 +52,7 @@ function parseConnectionString(url: string): pg.PoolConfig {
   }
 }
 
-const rawUrl = process.env.SUPABASE_DATABASE_URL ?? process.env.DATABASE_URL;
+const rawUrl = process.env.SUPABASE_DATABASE_URL;
 
 if (!rawUrl) {
   throw new Error(

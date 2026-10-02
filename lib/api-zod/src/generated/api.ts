@@ -9,6 +9,48 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Get private saved intake and draft
+ */
+export const GetIntakeResponse = zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).nullable(),
+  "draft": zod.record(zod.string(), zod.unknown()).nullable(),
+  "step": zod.number(),
+  "revision": zod.number(),
+  "version": zod.number(),
+  "required": zod.boolean(),
+  "completedAt": zod.string().nullable()
+})
+
+
+/**
+ * @summary Save a partial draft or validate and complete intake
+ */
+export const saveIntakeBodyStepMin = 0;
+export const saveIntakeBodyStepMax = 7;
+
+export const saveIntakeBodyRevisionMin = 0;
+
+
+
+export const SaveIntakeBody = zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).describe('Structured intake validated by the shared IntakeSchema and completion rules'),
+  "step": zod.number().min(saveIntakeBodyStepMin).max(saveIntakeBodyStepMax),
+  "revision": zod.number().min(saveIntakeBodyRevisionMin),
+  "complete": zod.boolean()
+})
+
+export const SaveIntakeResponse = zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).nullable(),
+  "draft": zod.record(zod.string(), zod.unknown()).nullable(),
+  "step": zod.number(),
+  "revision": zod.number(),
+  "version": zod.number(),
+  "required": zod.boolean(),
+  "completedAt": zod.string().nullable()
+})
+
+
+/**
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({

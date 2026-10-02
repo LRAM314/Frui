@@ -21,8 +21,11 @@ const categories = [
 
 async function seed() {
   console.log("Seeding categories...");
+  const existingNames = new Set((await db.select().from(categoriesTable))
+    .map((category) => `${category.parentModality}:${category.subCategory}`));
 
   for (const cat of categories) {
+    if (existingNames.has(`${cat.parentModality}:${cat.subCategory}`)) continue;
     await db
       .insert(categoriesTable)
       .values({

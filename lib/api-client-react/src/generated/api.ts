@@ -24,6 +24,8 @@ import type {
   DailyWorkout,
   ErrorResponse,
   HealthStatus,
+  IntakeSaveInput,
+  IntakeState,
   UserProfile,
   UserProfileInput,
   WorkoutCompleteInput,
@@ -58,6 +60,154 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetIntakeUrl = () => {
+
+
+
+
+  return `/api/profile/intake`
+}
+
+/**
+ * @summary Get private saved intake and draft
+ */
+export const getIntake = async ( options?: Parameters<typeof customFetch>[1]): Promise<IntakeState> => {
+
+  return customFetch<IntakeState>(getGetIntakeUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetIntakeQueryKey = () => {
+    return [
+    `/api/profile/intake`
+    ] as const;
+    }
+
+
+export const getGetIntakeQueryOptions = <TData = Awaited<ReturnType<typeof getIntake>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIntake>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetIntakeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getIntake>>> = ({ signal }) => getIntake({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getIntake>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetIntakeQueryResult = NonNullable<Awaited<ReturnType<typeof getIntake>>>
+export type GetIntakeQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get private saved intake and draft
+ */
+
+export function useGetIntake<TData = Awaited<ReturnType<typeof getIntake>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIntake>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetIntakeQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveIntakeUrl = () => {
+
+
+
+
+  return `/api/profile/intake`
+}
+
+/**
+ * @summary Save a partial draft or validate and complete intake
+ */
+export const saveIntake = async (intakeSaveInput: IntakeSaveInput, options?: Parameters<typeof customFetch>[1]): Promise<IntakeState> => {
+
+  return customFetch<IntakeState>(getSaveIntakeUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(intakeSaveInput)
+  }
+);}
+
+
+
+
+
+export const getSaveIntakeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveIntake>>, TError,{data: BodyType<IntakeSaveInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveIntake>>, TError,{data: BodyType<IntakeSaveInput>}, TContext> => {
+
+const mutationKey = ['saveIntake'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveIntake>>, {data: BodyType<IntakeSaveInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveIntake(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveIntakeMutationResult = NonNullable<Awaited<ReturnType<typeof saveIntake>>>
+    export type SaveIntakeMutationBody = BodyType<IntakeSaveInput>
+    export type SaveIntakeMutationError = ErrorType<void>
+
+    /**
+ * @summary Save a partial draft or validate and complete intake
+ */
+export const useSaveIntake = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveIntake>>, TError,{data: BodyType<IntakeSaveInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveIntake>>,
+        TError,
+        {data: BodyType<IntakeSaveInput>},
+        TContext
+      > => {
+      return useMutation(getSaveIntakeMutationOptions(options));
+    }
 
 export const getHealthCheckUrl = () => {
 

@@ -85,3 +85,44 @@ export interface UserProfileInput {
   athleteStatus?: string;
 }
 
+/**
+ * Structured intake validated by the shared IntakeSchema and completion rules
+ */
+export type IntakeSaveInputData = { [key: string]: unknown };
+
+export interface IntakeSaveInput {
+  /** Structured intake validated by the shared IntakeSchema and completion rules */
+  data: IntakeSaveInputData;
+  /**
+     * @minimum 0
+     * @maximum 7
+     */
+  step: number;
+  /** @minimum 0 */
+  revision: number;
+  complete: boolean;
+}
+
+/**
+ * @nullable
+ */
+export type IntakeStateData = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type IntakeStateDraft = { [key: string]: unknown } | null;
+
+export interface IntakeState {
+  /** @nullable */
+  data: IntakeStateData;
+  /** @nullable */
+  draft: IntakeStateDraft;
+  step: number;
+  revision: number;
+  version: number;
+  required: boolean;
+  /** @nullable */
+  completedAt: string | null;
+}
+

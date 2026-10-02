@@ -4,29 +4,41 @@ import { usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "../middlewares/requireAuth";
 import { z } from "zod";
+import { GetIntakeResponse, SaveIntakeBody, SaveIntakeResponse } from "@workspace/api-zod";
+import { ensureProfile, intakeState, saveIntakeSchema, savePrivateIntake } from "../lib/intake-service";
 
 const router = Router();
 
 async function ensureUser(clerkUserId: string) {
-  const [existing] = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.clerkUserId, clerkUserId))
-    .limit(1);
-  if (existing) return existing;
-
-  const [created] = await db
-    .insert(usersTable)
-    .values({
-      id: clerkUserId,
-      clerkUserId,
-      preferredModalities: [],
-      dislikedModalities: [],
-      availableResources: [],
-    })
-    .returning();
-  return created;
+  return ensureProfile(clerkUserId);
 }
+
+router.get("/intake", requireAuth, async (req, res): Promise<void> => {
+  try {
+    res.json(GetIntakeResponse.parse(intakeState(await ensureProfile((req as any).userId))));
+  } catch {
+    req.log.error("Unable to read private intake");
+    res.status(500).json({ error: "Unable to load your intake. Please retry." });
+  }
+});
+
+router.put("/intake", requireAuth, async (req, res): Promise<void> => {
+  const wire = SaveIntakeBody.safeParse(req.body);
+  const parsed = saveIntakeSchema.safeParse(req.body);
+  if (!wire.success || !parsed.success) {
+    res.status(400).json({ error: "Invalid intake values.", errors: parsed.success ? [] :
+      parsed.error.issues.map((issue) => ({ field: issue.path.join("."), message: issue.message })) });
+    return;
+  }
+  try {
+    const result = await savePrivateIntake((req as any).userId, parsed.data);
+    res.status(result.status).json(result.status === 200 ? SaveIntakeResponse.parse(result.body) : result.body);
+  } catch {
+    // Never log a query error here: it can contain sensitive JSON parameters.
+    req.log.error("Unable to save private intake");
+    res.status(500).json({ error: "Your intake could not be saved. Your answers have not been discarded; please retry." });
+  }
+});
 
 // GET /api/profile
 router.get("/", requireAuth, async (req, res) => {
@@ -52,7 +64,7 @@ const updateProfileSchema = z.object({
   dislikedModalities: z.array(z.string()).optional(),
   availableResources: z.array(z.string()).optional(),
   athleteStatus: z.string().optional(),
-});
+}).strict();
 
 // PATCH /api/profile
 router.patch("/", requireAuth, async (req, res) => {
@@ -64,7 +76,15 @@ router.patch("/", requireAuth, async (req, res) => {
   }
 
   try {
-    await ensureUser(userId);
+    const user = await ensureUser(userId);
+    if (user.onboardingCompletedAt && (
+      parsed.data.preferredModalities !== undefined ||
+      parsed.data.dislikedModalities !== undefined ||
+      parsed.data.availableResources !== undefined
+    )) {
+      res.status(409).json({ error: "Edit training preferences through the intake editor so your profile stays consistent." });
+      return;
+    }
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     if (parsed.data.preferredModalities !== undefined)
       updates.preferredModalities = parsed.data.preferredModalities;

@@ -1,8 +1,11 @@
 import React from 'react';
-import { ClerkProvider, SignIn, SignUp, Show, useClerk } from '@clerk/react';
+import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from '@clerk/react';
+import { ChevronLeft } from 'lucide-react';
+import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider';
+import Onboarding from '@/pages/Onboarding';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
-import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
+import { Switch, Route, useLocation, Router as WouterRouter, Redirect, Link } from 'wouter';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -46,58 +49,68 @@ const clerkAppearance = {
     logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
   },
   variables: {
-    colorPrimary: '#C4622D',
-    colorBackground: '#3A3A3A',
-    colorForeground: '#F5F0E8',
-    colorMutedForeground: '#A89B8C',
-    colorDanger: '#ef4444',
-    colorInput: '#2D2D2D',
-    colorInputForeground: '#F5F0E8',
-    colorNeutral: '#8B6344',
-    fontFamily: 'Inter, sans-serif',
+    colorPrimary: '#5A7D9A',
+    colorBackground: '#363636',
+    colorForeground: '#F1EFEA',
+    colorMutedForeground: '#B8BEC4',
+    colorDanger: '#F4B4B4',
+    colorInput: '#2B2B2B',
+    colorInputForeground: '#F1EFEA',
+    colorNeutral: '#9C7A63',
+    fontFamily: 'Figtree, sans-serif',
     borderRadius: '0.5rem',
   },
   elements: {
     rootBox: 'w-full flex justify-center',
-    cardBox: 'bg-[#3A3A3A] rounded-2xl w-[400px] max-w-[90vw] overflow-hidden',
+    cardBox: 'bg-[#363636] rounded-2xl w-[400px] max-w-[90vw] overflow-hidden',
     card: '!shadow-none !border-0 !bg-transparent !rounded-none',
     footer: '!shadow-none !border-0 !bg-transparent !rounded-none',
-    headerTitle: 'text-[#F5F0E8] font-serif',
-    headerSubtitle: 'text-[#A89B8C]',
-    socialButtonsBlockButtonText: 'text-[#F5F0E8]',
-    formFieldLabel: 'text-[#F5F0E8]',
-    footerActionLink: 'text-[#C4622D]',
-    footerActionText: 'text-[#A89B8C]',
-    dividerText: 'text-[#A89B8C]',
-    identityPreviewEditButton: 'text-[#C4622D]',
-    formFieldSuccessText: 'text-[#C89B7B]',
-    alertText: 'text-[#F5F0E8]',
+    headerTitle: 'text-[#F1EFEA] font-serif',
+    headerSubtitle: 'text-[#B8BEC4]',
+    socialButtonsBlockButtonText: 'text-[#F1EFEA]',
+    formFieldLabel: 'text-[#F1EFEA]',
+    footerActionLink: 'text-[#A9C3D8] underline',
+    footerActionText: 'text-[#B8BEC4]',
+    dividerText: 'text-[#B8BEC4]',
+    identityPreviewEditButton: 'text-[#A9C3D8]',
+    formFieldSuccessText: 'text-[#A9C3D8]',
+    alertText: 'text-[#F1EFEA]',
     logoBox: 'mx-auto',
     logoImage: 'h-12 w-12',
-    socialButtonsBlockButton: 'bg-[#2D2D2D] hover:bg-[#2A2A2A] border-[#8B6344]',
-    formButtonPrimary: 'bg-[#C4622D] hover:bg-[#9B4C2B] text-white',
-    formFieldInput: 'bg-[#2D2D2D] border-[#8B6344] text-[#F5F0E8]',
-    footerAction: 'border-t border-[#8B6344] pt-4',
-    dividerLine: 'bg-[#8B6344]',
-    alert: 'bg-[#9B4C2B]/20 border border-[#9B4C2B]',
-    otpCodeFieldInput: 'bg-[#2D2D2D] border-[#8B6344] text-[#F5F0E8]',
+    socialButtonsBlockButton: 'bg-[#2B2B2B] hover:bg-[#2A2A2A] border-[#9C7A63]',
+    formButtonPrimary: 'bg-[#3F5C77] hover:bg-[#2F465A] text-white',
+    formFieldInput: 'bg-[#2B2B2B] border-[#9C7A63] text-[#F1EFEA]',
+    footerAction: 'border-t border-[#9C7A63] pt-4',
+    dividerLine: 'bg-[#9C7A63]',
+    alert: 'bg-[#2F465A]/20 border border-[#2F465A]',
+    otpCodeFieldInput: 'bg-[#2B2B2B] border-[#9C7A63] text-[#F1EFEA]',
     formFieldRow: '',
     main: '',
   },
 };
 
+function AuthBack() {
+  return (
+    <Link href="/" data-testid="link-auth-back" className="absolute left-3 top-3 flex min-h-11 items-center gap-1 rounded-full px-3 text-sm font-semibold text-[#F1EFEA] hover:bg-[#363636]">
+      <ChevronLeft className="h-5 w-5" /> Back to Frui
+    </Link>
+  );
+}
+
 function SignInPage() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-[#2D2D2D] px-4">
-      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+    <div className="relative flex min-h-[100dvh] items-center justify-center bg-[#2B2B2B] px-4 pt-14">
+      <AuthBack />
+      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} fallbackRedirectUrl={`${basePath}/`} />
     </div>
   );
 }
 
 function SignUpPage() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-[#2D2D2D] px-4">
-      <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
+    <div className="relative flex min-h-[100dvh] items-center justify-center bg-[#2B2B2B] px-4 pt-14">
+      <AuthBack />
+      <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} fallbackRedirectUrl={`${basePath}/onboarding`} />
     </div>
   );
 }
@@ -154,6 +167,11 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   );
 }
 
+function UserScope({ children }: { children: React.ReactNode }) {
+  const { user } = useUser();
+  return <OnboardingProvider key={user?.id ?? 'anon'}>{children}</OnboardingProvider>;
+}
+
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
 
@@ -169,12 +187,14 @@ function ClerkProviderWithRoutes() {
     >
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
+        <UserScope>
         <TooltipProvider>
           <Switch>
             <Route path="/" component={HomeRedirect} />
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
             
+            <Route path="/onboarding" component={() => <ProtectedRoute component={Onboarding} />} />
             <Route path="/todo" component={() => <ProtectedRoute component={ToDo} />} />
             <Route path="/create-plan" component={() => <ProtectedRoute component={CreatePlan} />} />
             <Route path="/plan/:id" component={() => <ProtectedRoute component={PlanDetail} />} />
@@ -186,6 +206,7 @@ function ClerkProviderWithRoutes() {
           </Switch>
           <Toaster />
         </TooltipProvider>
+        </UserScope>
       </QueryClientProvider>
     </ClerkProvider>
   );

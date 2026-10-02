@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
+import { useOnboarding } from '@/components/onboarding/OnboardingProvider';
 import { useListCategories, useCreatePlan, getListPlansQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Slider } from '@/components/ui/slider';
@@ -9,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function CreatePlan() {
   const [, setLocation] = useLocation();
+  const ob = useOnboarding();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -74,19 +76,31 @@ export default function CreatePlan() {
   const getModalityIcon = (modality: string) => {
     switch (modality.toLowerCase()) {
       case 'strength': return <Dumbbell className="h-5 w-5 text-camel" />;
-      case 'cardio': return <HeartPulse className="h-5 w-5 text-terracotta" />;
+      case 'cardio': return <HeartPulse className="h-5 w-5 text-camel" />;
       case 'mobility': return <Sparkles className="h-5 w-5 text-ochre" />;
       default: return <Activity className="h-5 w-5 text-camel" />;
     }
   };
 
+  if (ob.intakeLoading) return <div className="p-6"><Skeleton className="h-40 w-full rounded-2xl bg-[#363636]" /></div>;
+  if (ob.intake && !ob.intake.completedAt) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-5 p-6 text-center" data-testid="gate-onboarding">
+        <h2 className="font-serif text-2xl font-bold text-light-text">Finish your profile first</h2>
+        <p className="max-w-[280px] text-muted-text">Plans are built from your goals, schedule and resources. Complete onboarding, then come back here.</p>
+        <Link href="/onboarding" className="flex min-h-14 w-full max-w-[280px] items-center justify-center rounded-xl bg-slate-deep text-lg font-semibold text-white hover:bg-rust" data-testid="link-gate-onboarding">Continue onboarding</Link>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col bg-charcoal">
       {/* Header overrides standard shell header for this flow */}
-      <div className="flex h-16 shrink-0 items-center border-b border-[#3A3A3A] px-4 sticky top-0 bg-charcoal z-10">
+      <div className="flex h-16 shrink-0 items-center border-b border-[#363636] px-4 sticky top-0 bg-charcoal z-10">
         <button 
           onClick={handleBack}
-          className="flex h-10 w-10 items-center justify-center rounded-full text-light-text hover:bg-[#3A3A3A] transition-colors -ml-2"
+          aria-label="Previous step"
+          className={`${step === 1 ? 'hidden' : 'flex'} h-11 w-11 items-center justify-center rounded-full text-light-text hover:bg-[#363636] transition-colors -ml-2`}
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
@@ -94,8 +108,8 @@ export default function CreatePlan() {
           {step === 1 ? 'Cycle Duration' : 'Training Focus'}
         </h2>
         <div className="ml-auto flex gap-1">
-          <div className={`h-2 w-8 rounded-full ${step >= 1 ? 'bg-camel' : 'bg-[#3A3A3A]'}`} />
-          <div className={`h-2 w-8 rounded-full ${step >= 2 ? 'bg-camel' : 'bg-[#3A3A3A]'}`} />
+          <div className={`h-2 w-8 rounded-full ${step >= 1 ? 'bg-camel' : 'bg-[#363636]'}`} />
+          <div className={`h-2 w-8 rounded-full ${step >= 2 ? 'bg-camel' : 'bg-[#363636]'}`} />
         </div>
       </div>
 
@@ -103,7 +117,7 @@ export default function CreatePlan() {
         {step === 1 && (
           <div className="flex flex-col gap-12 pt-8">
             <div className="flex flex-col gap-3 text-center">
-              <span className="text-[64px] font-bold font-serif text-terracotta leading-none">
+              <span className="text-[64px] font-bold font-serif text-camel leading-none">
                 {durationWeeks}
               </span>
               <span className="text-xl font-medium text-light-text uppercase tracking-widest">
@@ -149,10 +163,10 @@ export default function CreatePlan() {
               <div className="flex flex-col gap-6">
                 {[1, 2, 3].map(i => (
                   <div key={i} className="flex flex-col gap-3">
-                    <Skeleton className="h-6 w-24 bg-[#3A3A3A]" />
+                    <Skeleton className="h-6 w-24 bg-[#363636]" />
                     <div className="flex gap-2">
-                      <Skeleton className="h-10 w-24 bg-[#3A3A3A] rounded-full" />
-                      <Skeleton className="h-10 w-32 bg-[#3A3A3A] rounded-full" />
+                      <Skeleton className="h-10 w-24 bg-[#363636] rounded-full" />
+                      <Skeleton className="h-10 w-32 bg-[#363636] rounded-full" />
                     </div>
                   </div>
                 ))}
@@ -160,7 +174,7 @@ export default function CreatePlan() {
             ) : (
               Object.entries(groupedCategories).map(([modality, cats]) => (
                 <div key={modality} className="flex flex-col gap-4">
-                  <div className="flex items-center gap-2 border-b border-[#3A3A3A] pb-2">
+                  <div className="flex items-center gap-2 border-b border-[#363636] pb-2">
                     {getModalityIcon(modality)}
                     <h3 className="font-serif text-lg font-bold text-light-text">{modality}</h3>
                   </div>
@@ -174,7 +188,7 @@ export default function CreatePlan() {
                           className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-medium transition-all ${
                             isSelected
                               ? 'border-terracotta bg-terracotta text-white shadow-[0_0_12px_rgba(196,98,45,0.3)]'
-                              : 'border-[#4A4A4A] bg-[#2D2D2D] text-muted-text hover:border-camel hover:text-camel'
+                              : 'border-[#4A4F54] bg-[#2B2B2B] text-muted-text hover:border-camel hover:text-camel'
                           }`}
                         >
                           {isSelected && <Check className="h-4 w-4" />}

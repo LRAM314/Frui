@@ -6,10 +6,13 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed-categories": "tsx ./src/seed-categories.ts",
+    "phase2-migrate": "tsx ./src/phase2-migrate.ts",
+    "test-intake": "tsx ./src/test-intake.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@workspace/db": "workspace:*"
+    "@workspace/db": "workspace:*",
+    "@workspace/api-zod": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

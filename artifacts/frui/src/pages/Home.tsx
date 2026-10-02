@@ -1,19 +1,47 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link, Redirect } from 'wouter';
+import { useOnboarding } from '@/components/onboarding/OnboardingProvider';
 import { useListPlans, useListCategories } from '@workspace/api-client-react';
-import { Plus, Calendar, Activity } from 'lucide-react';
+import { Plus, Calendar, Activity, ClipboardList } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
+function Invite({ draft }: { draft: boolean }) {
+  return (
+    <Link href="/onboarding" data-testid="banner-onboarding" className="mx-6 mt-6 flex min-h-14 items-center gap-3 rounded-2xl border border-clay bg-[#363636] p-4 transition active:scale-[0.99] hover:border-camel">
+      <ClipboardList className="h-6 w-6 shrink-0 text-camel" />
+      <span className="flex flex-col">
+        <span className="font-semibold text-light-text">{draft ? 'Finish your training profile' : 'Complete your training profile'}</span>
+        <span className="text-sm text-muted-text">Seven short steps. Your plans stay as they are.</span>
+      </span>
+    </Link>
+  );
+}
+
 export default function Home() {
+  const ob = useOnboarding();
+  const incomplete = !!ob.intake && !ob.intake.completedAt;
+  if (ob.intake?.required && incomplete && !ob.optedOut) return <Redirect to="/onboarding" />;
+  if (ob.intakeLoading) {
+    return <div className="flex flex-col gap-4 p-6"><Skeleton className="h-8 w-1/3 rounded bg-[#363636]" /><Skeleton className="h-40 w-full rounded-2xl bg-[#363636]" /></div>;
+  }
+  return (
+    <>
+      {incomplete && <Invite draft={!!ob.intake?.draft} />}
+      <Plans />
+    </>
+  );
+}
+
+function Plans() {
   const { data: plans, isLoading: isLoadingPlans, isError: isErrorPlans } = useListPlans();
   const { data: categories } = useListCategories();
 
   if (isLoadingPlans) {
     return (
       <div className="flex flex-col gap-4 p-6">
-        <Skeleton className="h-8 w-1/3 bg-[#3A3A3A] rounded" />
-        <Skeleton className="h-40 w-full bg-[#3A3A3A] rounded-2xl" />
-        <Skeleton className="h-40 w-full bg-[#3A3A3A] rounded-2xl" />
+        <Skeleton className="h-8 w-1/3 bg-[#363636] rounded" />
+        <Skeleton className="h-40 w-full bg-[#363636] rounded-2xl" />
+        <Skeleton className="h-40 w-full bg-[#363636] rounded-2xl" />
       </div>
     );
   }
@@ -31,7 +59,7 @@ export default function Home() {
   if (activePlans.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center p-6 text-center gap-6">
-        <div className="rounded-full bg-[#3A3A3A] p-6 shadow-inner">
+        <div className="rounded-full bg-[#363636] p-6 shadow-inner">
           <Calendar className="h-12 w-12 text-muted-text opacity-50" />
         </div>
         <div className="flex flex-col gap-2">
@@ -74,7 +102,7 @@ export default function Home() {
             <Link 
               key={plan.id}
               href={`/plan/${plan.id}`}
-              className="flex flex-col gap-4 rounded-2xl bg-[#3A3A3A] p-5 shadow-[0_4px_16px_rgba(0,0,0,0.2)] border border-[#4A4A4A] transition-transform active:scale-[0.98]"
+              className="flex flex-col gap-4 rounded-2xl bg-[#363636] p-5 shadow-[0_4px_16px_rgba(0,0,0,0.2)] border border-[#4A4F54] transition-transform active:scale-[0.98]"
             >
               <div className="flex items-start justify-between">
                 <div className="flex flex-col gap-1">
@@ -86,7 +114,7 @@ export default function Home() {
                   </h3>
                 </div>
                 <div className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${
-                  plan.status === 'active' ? 'bg-terracotta/20 text-terracotta' : 'bg-[#2D2D2D] text-muted-text'
+                  plan.status === 'active' ? 'bg-terracotta/20 text-camel' : 'bg-[#2B2B2B] text-muted-text'
                 }`}>
                   {plan.status}
                 </div>
@@ -94,7 +122,7 @@ export default function Home() {
 
               <div className="flex flex-wrap gap-2">
                 {planCategories.map((cat, i) => (
-                  <div key={i} className="flex items-center gap-1.5 rounded-full bg-[#2D2D2D] px-3 py-1.5 text-xs font-medium text-light-text">
+                  <div key={i} className="flex items-center gap-1.5 rounded-full bg-[#2B2B2B] px-3 py-1.5 text-xs font-medium text-light-text">
                     <Activity className="h-3 w-3 text-camel" />
                     <span>{cat?.subCategory}</span>
                   </div>

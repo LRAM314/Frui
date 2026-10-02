@@ -51,12 +51,12 @@ export default function PlanDetail() {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-6 p-6 pt-2">
-        <Skeleton className="h-10 w-10 rounded-full bg-[#3A3A3A]" />
-        <Skeleton className="h-32 w-full rounded-2xl bg-[#3A3A3A]" />
+        <Skeleton className="h-10 w-10 rounded-full bg-[#363636]" />
+        <Skeleton className="h-32 w-full rounded-2xl bg-[#363636]" />
         <div className="space-y-4 mt-4">
-          <Skeleton className="h-16 w-full rounded-xl bg-[#3A3A3A]" />
-          <Skeleton className="h-16 w-full rounded-xl bg-[#3A3A3A]" />
-          <Skeleton className="h-16 w-full rounded-xl bg-[#3A3A3A]" />
+          <Skeleton className="h-16 w-full rounded-xl bg-[#363636]" />
+          <Skeleton className="h-16 w-full rounded-xl bg-[#363636]" />
+          <Skeleton className="h-16 w-full rounded-xl bg-[#363636]" />
         </div>
       </div>
     );
@@ -66,7 +66,7 @@ export default function PlanDetail() {
     return (
       <div className="flex h-full flex-col items-center justify-center p-6 text-center">
         <p className="text-muted-text mb-4">Plan not found.</p>
-        <Link href="/" className="text-terracotta font-medium hover:text-camel">Return to Home</Link>
+        <Link href="/" className="text-camel font-medium hover:text-camel">Return to Home</Link>
       </div>
     );
   }
@@ -87,10 +87,10 @@ export default function PlanDetail() {
   return (
     <div className="flex flex-col min-h-full pb-8">
       {/* Header overrides standard shell header for this flow */}
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-[#3A3A3A] px-4 sticky top-0 bg-charcoal z-10">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-[#363636] px-4 sticky top-0 bg-charcoal z-10">
         <Link 
           href="/"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-light-text hover:bg-[#3A3A3A] transition-colors -ml-2"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-light-text hover:bg-[#363636] transition-colors -ml-2"
         >
           <ChevronLeft className="h-6 w-6" />
         </Link>
@@ -100,11 +100,11 @@ export default function PlanDetail() {
         
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <button className="flex h-10 w-10 items-center justify-center rounded-full text-muted-text hover:text-rust hover:bg-[#3A3A3A] transition-colors">
+            <button className="flex h-10 w-10 items-center justify-center rounded-full text-muted-text hover:text-light-text hover:bg-[#363636] transition-colors">
               <Trash2 className="h-5 w-5" />
             </button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="bg-charcoal border-[#3A3A3A] text-light-text max-w-[340px]">
+          <AlertDialogContent className="bg-charcoal border-[#363636] text-light-text max-w-[340px]">
             <AlertDialogHeader>
               <AlertDialogTitle>Delete this plan?</AlertDialogTitle>
               <AlertDialogDescription className="text-muted-text">
@@ -112,7 +112,7 @@ export default function PlanDetail() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-[#3A3A3A] border-none text-light-text hover:bg-[#4A4A4A] hover:text-light-text">Cancel</AlertDialogCancel>
+              <AlertDialogCancel className="bg-[#363636] border-none text-light-text hover:bg-[#4A4F54] hover:text-light-text">Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={handleDelete} className="bg-rust text-white hover:bg-red-700">Delete</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -120,10 +120,10 @@ export default function PlanDetail() {
       </div>
 
       <div className="flex flex-col p-6 gap-8">
-        <div className="flex flex-col gap-6 rounded-3xl bg-[#3A3A3A] p-6 shadow-xl border border-[#4A4A4A]">
+        <div className="flex flex-col gap-6 rounded-3xl bg-[#363636] p-6 shadow-xl border border-[#4A4F54]">
           <div className="flex items-center justify-between">
             <div className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider ${
-              plan.status === 'active' ? 'bg-terracotta/20 text-terracotta' : 'bg-[#2D2D2D] text-muted-text'
+              plan.status === 'active' ? 'bg-terracotta/20 text-camel' : 'bg-[#2B2B2B] text-muted-text'
             }`}>
               {plan.status}
             </div>
@@ -141,13 +141,13 @@ export default function PlanDetail() {
             </span>
           </div>
 
-          <div className="h-px w-full bg-[#2D2D2D]" />
+          <div className="h-px w-full bg-[#2B2B2B]" />
 
           <div className="flex flex-col gap-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-muted-text">Modalities</h4>
             <div className="flex flex-wrap gap-2">
               {planCategories.map((cat, i) => (
-                <div key={i} className="flex items-center gap-1.5 rounded-full bg-[#2D2D2D] px-3 py-1.5 text-xs font-medium text-light-text border border-[#4A4A4A]">
+                <div key={i} className="flex items-center gap-1.5 rounded-full bg-[#2B2B2B] px-3 py-1.5 text-xs font-medium text-light-text border border-[#4A4F54]">
                   <Activity className="h-3 w-3 text-camel" />
                   <span>{cat?.subCategory}</span>
                 </div>
@@ -172,10 +172,10 @@ export default function PlanDetail() {
                   <div 
                     key={workout.id}
                     className={`flex items-center gap-4 rounded-xl p-4 transition-colors ${
-                      workout.completed ? 'bg-[#2D2D2D] border border-[#3A3A3A]' : 'bg-[#3A3A3A]'
+                      workout.completed ? 'bg-[#2B2B2B] border border-[#363636]' : 'bg-[#363636]'
                     }`}
                   >
-                    <div className="flex flex-col items-center justify-center h-12 w-12 rounded-lg bg-[#2D2D2D] shrink-0 border border-[#4A4A4A]">
+                    <div className="flex flex-col items-center justify-center h-12 w-12 rounded-lg bg-[#2B2B2B] shrink-0 border border-[#4A4F54]">
                       <span className="text-[10px] font-bold uppercase text-muted-text">Day</span>
                       <span className="text-lg font-bold text-light-text">{workout.dayOfWeek + 1}</span>
                     </div>
