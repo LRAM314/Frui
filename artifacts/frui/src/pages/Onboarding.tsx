@@ -84,7 +84,7 @@ export default function Onboarding() {
     if (!ok) setAdvanceFail(true);
   };
   const saveExit = () => { ob.optOut(); ob.navigate('/'); };
-  const statusText = ob.status === 'saving' ? 'Saving draft...' : ob.status === 'saved' ? 'Draft saved' : ob.status === 'error' ? 'Save failed' : ob.status === 'conflict' ? 'Draft conflict' : '';
+  const statusText = ob.status === 'saving' ? 'Saving draft...' : ob.status === 'saved' ? 'Draft saved' : ob.status === 'incomplete' ? 'Finish or clear unfinished values to save' : ob.status === 'error' ? 'Save failed' : ob.status === 'conflict' ? 'Draft conflict' : '';
 
   return (
     <div className="flex min-h-full flex-col">

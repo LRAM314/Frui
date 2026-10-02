@@ -1,6 +1,6 @@
 ---
 name: Supabase connection from Replit
-description: Direct Supabase connection fails from Replit; pooler URL required. Also, pg-connection-string can't parse URLs with special chars in password.
+description: Session Pooler requirement, paused-project errors, and connection-string parsing constraints.
 ---
 
 # Supabase Connection from Replit
@@ -13,9 +13,15 @@ Always use the **Session Pooler** URL for Supabase connections from Replit. The 
 **How to apply:** When requesting the user's Supabase URL, explicitly ask for the Session Pooler connection string from Supabase → Project Settings → Database → Connection string → "Session pooler" tab. URL format: `postgresql://postgres.REF:PASS@aws-0-REGION.pooler.supabase.com:5432/postgres`.
 
 ## Password Special Characters
-`pg-connection-string` (used by the `pg` npm package) fails to parse connection strings whose passwords contain unencoded special characters. Fix in `lib/db/src/index.ts`: use a `parseConnectionString` helper that falls back to regex extraction and passes individual params (`host`, `port`, `user`, `password`, `database`, `ssl`) directly to `new Pool({...})` instead of using `connectionString`.
+Connection-string consumers can reject unencoded special characters in passwords.
 
-The same issue affects `drizzle-kit push`. Fix: a wrapper script at `lib/db/scripts/push.mjs` reads the URL, encodes the password with `encodeURIComponent`, then runs `drizzle-kit` with the encoded URL.
+**Why:** The user's original working Supabase URL needed robust parsing rather than a generic URL assumption.
 
-## Secret Key
-Store as `SUPABASE_DATABASE_URL` (not `DATABASE_URL` — that is runtime-managed by Replit and can't be `requestSecrets`'d). The db lib reads `SUPABASE_DATABASE_URL ?? DATABASE_URL`.
+**How to apply:** Preserve robust parsing/encoding in database tooling; do not print credentials to diagnose parsing.
+
+## Paused Project Errors
+The Supabase pooler can return `tenant/user not found` while a project is paused. Resuming it can restore the existing URL without changing credentials.
+
+**Why:** A Phase 2 migration failed with this error, then succeeded unchanged after the user resumed Supabase.
+
+**How to apply:** Ask whether the project is active and retry after resumption before requesting a replacement connection string. Never substitute another database.

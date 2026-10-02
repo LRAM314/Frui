@@ -85,12 +85,14 @@ export function StepBiometrics(p: StepProps) {
           <Popover open={tip} onOpenChange={setTip}>
             <PopoverTrigger asChild>
               <button type="button" aria-label="Why we ask for biological sex" data-testid="button-sex-tooltip"
-                onMouseEnter={() => setTip(true)} onMouseLeave={() => setTip(false)}
+                aria-describedby={tip ? 'biological-sex-help' : undefined}
+                onPointerEnter={(e) => { if (e.pointerType === 'mouse') setTip(true); }}
+                onPointerLeave={(e) => { if (e.pointerType === 'mouse') setTip(false); }}
                 className="flex h-11 w-11 items-center justify-center rounded-full border border-[#4A4F54] text-camel hover:bg-[#2B2B2B]">
                 <HelpCircle className="h-5 w-5" />
               </button>
             </PopoverTrigger>
-            <PopoverContent role="tooltip" className="w-64 border-[#4A4F54] bg-[#2B2B2B] text-sm text-light-text" onOpenAutoFocus={(e) => e.preventDefault()}>
+            <PopoverContent id="biological-sex-help" role="tooltip" className="w-64 border-[#4A4F54] bg-[#2B2B2B] text-sm text-light-text" onOpenAutoFocus={(e) => e.preventDefault()}>
               This is required strictly for accurate physiological and relative strength calculations.
             </PopoverContent>
           </Popover>

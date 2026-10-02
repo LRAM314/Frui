@@ -10,7 +10,7 @@ import {
 } from '@workspace/api-client-react';
 import { IntakeSchema, completionErrors, type IntakeData } from '@workspace/api-zod';
 
-export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'conflict';
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'incomplete' | 'error' | 'conflict';
 type Blocked = { to: string | null; kind: 'error' | 'conflict' } | null;
 type Session = { revision: number; dirty: boolean; edit: number; hydrated: boolean; step: number };
 
@@ -99,6 +99,10 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     const cur = s.current;
     if (!cur.dirty) return true;
     if (conflictRef.current) return false;
+    if (!IntakeSchema.safeParse(dataRef.current).success) {
+      setStatus('incomplete');
+      return false;
+    }
     const editAt = cur.edit;
     setStatus('saving');
     try {
@@ -264,7 +268,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
             <p className="mt-2 text-sm text-muted-text">
               {blocked.kind === 'conflict'
                 ? 'A newer version exists on another device or tab. Load it, or deliberately keep your answers and save over it.'
-                : 'We could not reach the server. Your answers are still on this screen. Retry, or leave and lose the unsaved changes.'}
+                : 'We could not save your draft. Finish or clear unfinished values and check your connection. Your answers are still here. Retry, stay and edit, or leave without saving the changes.'}
             </p>
             <div className="mt-4 flex flex-col gap-2">
               {blocked.kind === 'conflict' ? (
